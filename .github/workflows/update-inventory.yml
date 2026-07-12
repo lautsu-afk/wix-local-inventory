@@ -1,0 +1,48 @@
+name: Update Wix local inventory
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "15 23 * * *"
+      timezone: "Europe/Helsinki"
+
+permissions:
+  contents: write
+
+jobs:
+  update-inventory:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Generate local inventory feed
+        env:
+          WIX_API_KEY: ${{ secrets.WIX_API_KEY }}
+          WIX_SITE_ID: ${{ secrets.WIX_SITE_ID }}
+          STORE_CODE: ${{ secrets.STORE_CODE }}
+        run: python update_inventory.py
+
+      - name: Commit updated feed
+        run: |
+          if [ -z "$(git status --porcelain docs/)" ]; then
+            echo "Inventory data has not changed."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/
+          git commit -m "Update local inventory feed"
+          git push
