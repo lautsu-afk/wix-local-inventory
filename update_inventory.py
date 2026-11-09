@@ -8,15 +8,13 @@ from typing import Any
 import requests
 
 
-# GitHub Actions antaa nämä arvot ohjelmalle salaisuuksista.
 WIX_API_KEY = os.environ["WIX_API_KEY"]
 WIX_SITE_ID = os.environ["WIX_SITE_ID"]
 STORE_CODE = os.environ["STORE_CODE"]
 
-# Sama Wix-tuoterajapinta, jota käytettiin Make.comissa.
 PRODUCTS_URL = "https://www.wixapis.com/stores-reader/v1/products/query"
+INVENTORY_URL = "https://www.wixapis.com/stores-reader/v2/inventoryItems/query"
 
-# GitHub Pages julkaisee docs-kansion sisällön.
 OUTPUT_FILE = Path("docs/local_inventory.tsv")
 
 HEADERS = {
@@ -27,7 +25,7 @@ HEADERS = {
 
 
 def wix_post(url: str, body: dict[str, Any]) -> dict[str, Any]:
-    """Send a POST request to Wix and return the parsed JSON response."""
+    """Send a POST request to Wix and return JSON."""
     response = requests.post(
         url,
         headers=HEADERS,
@@ -43,91 +41,15 @@ def wix_post(url: str, body: dict[str, Any]) -> dict[str, Any]:
     return response.json()
 
 
-def normalize_availability(value: str | None) -> str:
-    """
-    Convert Wix inventory status into a Google-supported availability value.
-    """
-    status = (value or "").strip().upper()
-
-    mapping = {
-        "IN_STOCK": "in_stock",
-        "PARTIALLY_OUT_OF_STOCK": "limited_availability",
-        "LIMITED_AVAILABILITY": "limited_availability",
-        "OUT_OF_STOCK": "out_of_stock",
-    }
-
-    if status in mapping:
-        return mapping[status]
-
-    # Tuntematon arvo merkitään varmuuden vuoksi loppuneeksi.
-    print(
-        f"Warning: unknown Wix inventory status {value!r}; "
-        "using out_of_stock"
-    )
-    return "out_of_stock"
-
-
-def get_quantity(product: dict[str, Any]) -> int | str:
-    """Return the Wix stock quantity when available."""
-    stock = product.get("stock") or {}
-
-    possible_values = [
-        stock.get("quantity"),
-        stock.get("quantityInStock"),
-        stock.get("quantity_in_stock"),
-        product.get("quantity"),
-    ]
-
-    for value in possible_values:
-        if value is None:
-            continue
-
-        try:
-            return int(float(value))
-        except (TypeError, ValueError):
-            print(f"Warning: unusual quantity value {value!r}")
-            return value
-
-    # Tyhjä quantity on sallittu silloin, kun Wix ei palauta tarkkaa saldoa.
-    return ""
-
-
-def get_inventory_status(product: dict[str, Any]) -> str | None:
-    """Read inventory status from the Wix product response."""
-    stock = product.get("stock") or {}
-
-    return (
-        stock.get("inventoryStatus")
-        or stock.get("inventory_status")
-        or product.get("inventoryStatus")
-        or product.get("inventory_status")
-    )
-
-
-def get_product_id(product: dict[str, Any]) -> str | None:
-    """Read the product ID that matches the Merchant Center item ID."""
-    return product.get("id") or product.get("_id")
-
-
-def product_is_visible(product: dict[str, Any]) -> bool:
-    """Exclude a product only when Wix explicitly marks it as hidden."""
-    return product.get("visible") is not False
-
-
 def get_all_products() -> list[dict[str, Any]]:
-    """
-    Retrieve all Wix products.
-
-    Wix returns up to 100 products per request, so requests are repeated
-    with increasing offsets until the final partial page is reached.
-    """
+    """Retrieve all Wix products using offset pagination."""
     products: list[dict[str, Any]] = []
 
     limit = 100
     offset = 0
 
     while True:
-        request_body = {
+        body = {
             "query": {
                 "paging": {
                     "limit": limit,
@@ -136,13 +58,8 @@ def get_all_products() -> list[dict[str, Any]]:
             }
         }
 
-        response_data = wix_post(PRODUCTS_URL, request_body)
-        page = response_data.get("products", [])
-
-        if not isinstance(page, list):
-            raise RuntimeError(
-                "Wix response did not contain a valid products array."
-            )
+        data = wix_post(PRODUCTS_URL, body)
+        page = data.get("products", [])
 
         print(f"Products received at offset {offset}: {len(page)}")
         products.extend(page)
@@ -155,18 +72,169 @@ def get_all_products() -> list[dict[str, Any]]:
     return products
 
 
+def get_all_inventory_items() -> list[dict[str, Any]]:
+    """Retrieve all Wix inventory items including variant stock."""
+    items: list[dict[str, Any]] = []
+
+    limit = 100
+    offset = 0
+
+    while True:
+        body = {
+            "query": {
+                "paging": {
+                    "limit": limit,
+                    "offset": offset,
+                }
+            }
+        }
+
+        data = wix_post(INVENTORY_URL, body)
+        page = data.get("inventoryItems", [])
+
+        print(f"Inventory items at offset {offset}: {len(page)}")
+        items.extend(page)
+
+        if len(page) < limit:
+            break
+
+        offset += limit
+
+    return items
+
+
+def get_product_variants(product_id: str) -> list[dict[str, Any]]:
+    """Retrieve all variants for one Wix product."""
+    url = (
+        "https://www.wixapis.com/stores-reader/v1/products/"
+        f"{product_id}/variants/query"
+    )
+
+    variants: list[dict[str, Any]] = []
+
+    limit = 100
+    offset = 0
+
+    while True:
+        body = {
+            "includeMerchantSpecificData": True,
+            "paging": {
+                "limit": limit,
+                "offset": offset,
+            },
+        }
+
+        data = wix_post(url, body)
+        page = data.get("variants", [])
+
+        variants.extend(page)
+
+        if len(page) < limit:
+            break
+
+        offset += limit
+
+    return variants
+
+
+def create_inventory_lookup(
+    inventory_items: list[dict[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    """
+    Create lookup:
+
+    productId -> {
+        trackQuantity: bool,
+        variants: {
+            variantId -> {
+                inStock,
+                quantity
+            }
+        }
+    }
+    """
+    lookup: dict[str, dict[str, Any]] = {}
+
+    for item in inventory_items:
+        product_id = item.get("productId")
+
+        if not product_id:
+            continue
+
+        variant_lookup: dict[str, dict[str, Any]] = {}
+
+        for variant in item.get("variants", []):
+            variant_id = variant.get("variantId")
+
+            if not variant_id:
+                continue
+
+            variant_lookup[variant_id] = {
+                "inStock": variant.get("inStock"),
+                "quantity": variant.get("quantity"),
+                "availableForPreorder": variant.get(
+                    "availableForPreorder"
+                ),
+            }
+
+        lookup[product_id] = {
+            "trackQuantity": item.get("trackQuantity", False),
+            "variants": variant_lookup,
+        }
+
+    return lookup
+
+
+def get_availability(
+    inventory_data: dict[str, Any] | None,
+) -> str:
+    """Convert Wix variant inventory into Google availability."""
+    if not inventory_data:
+        return "out_of_stock"
+
+    if inventory_data.get("inStock") is True:
+        return "in_stock"
+
+    return "out_of_stock"
+
+
+def get_quantity(
+    inventory_data: dict[str, Any] | None,
+    track_quantity: bool,
+) -> int | str:
+    """Return quantity when Wix tracks exact quantities."""
+    if not inventory_data:
+        return 0
+
+    if not track_quantity:
+        return ""
+
+    quantity = inventory_data.get("quantity")
+
+    if quantity is None:
+        return ""
+
+    try:
+        return int(quantity)
+    except (TypeError, ValueError):
+        return ""
+
+
+def product_is_visible(product: dict[str, Any]) -> bool:
+    """Exclude only products Wix explicitly marks as hidden."""
+    return product.get("visible") is not False
+
+
 def create_pages_support_files() -> None:
-    """Create small supporting files for GitHub Pages."""
     docs_directory = OUTPUT_FILE.parent
     docs_directory.mkdir(parents=True, exist_ok=True)
 
-    # Prevent GitHub Pages from applying unnecessary Jekyll processing.
-    (docs_directory / ".nojekyll").write_text("", encoding="utf-8")
+    (docs_directory / ".nojekyll").write_text(
+        "",
+        encoding="utf-8",
+    )
 
-    # GitHub Pages toimii luotettavasti, kun kansiossa on myös index.html.
-    index_file = docs_directory / "index.html"
-
-    index_file.write_text(
+    (docs_directory / "index.html").write_text(
         """<!doctype html>
 <html lang="fi">
 <head>
@@ -175,7 +243,9 @@ def create_pages_support_files() -> None:
 </head>
 <body>
   <p>
-    <a href="local_inventory.tsv">Local inventory feed</a>
+    <a href="local_inventory.tsv">
+      Local inventory feed
+    </a>
   </p>
 </body>
 </html>
@@ -185,13 +255,191 @@ def create_pages_support_files() -> None:
 
 
 def build_inventory_file() -> None:
-    """Fetch Wix products and write the Google local inventory TSV file."""
+    print("Fetching Wix products...")
     products = get_all_products()
+
+    print("")
+    print("Fetching Wix inventory...")
+    inventory_items = get_all_inventory_items()
+    inventory_lookup = create_inventory_lookup(inventory_items)
+
     create_pages_support_files()
 
-    written_rows = 0
-    skipped_hidden = 0
-    skipped_without_id = 0
+    rows: list[list[Any]] = []
+
+    normal_products = 0
+    variant_products = 0
+    variant_rows = 0
+    hidden_products = 0
+
+    for product in products:
+        if not product_is_visible(product):
+            hidden_products += 1
+            continue
+
+        product_id = product.get("id") or product.get("_id")
+
+        if not product_id:
+            print("WARNING: product without ID skipped")
+            continue
+
+        #
+        # Query variants.
+        #
+        variants = get_product_variants(product_id)
+
+        #
+        # Only visible variants matter for Google's Wix feed.
+        #
+        visible_variants = [
+            variant
+            for variant in variants
+            if (variant.get("variant") or {}).get("visible") is not False
+        ]
+
+        product_inventory = inventory_lookup.get(
+            product_id,
+            {},
+        )
+
+        track_quantity = product_inventory.get(
+            "trackQuantity",
+            False,
+        )
+
+        inventory_variants = product_inventory.get(
+            "variants",
+            {},
+        )
+
+        #
+        # MULTI-VARIANT PRODUCT
+        #
+        # Wix's Google feed generates IDs:
+        #
+        # product-id_0
+        # product-id_1
+        # product-id_2
+        #
+        # in the same order returned by Query Product Variants.
+        #
+        if len(visible_variants) > 1:
+            variant_products += 1
+
+            print("")
+            print(
+                f"Variant product {product_id}: "
+                f"{len(visible_variants)} variants"
+            )
+
+            for index, variant in enumerate(visible_variants):
+                variant_id = variant.get("id")
+
+                if not variant_id:
+                    print(
+                        f"WARNING: variant {index} has no ID"
+                    )
+                    continue
+
+                google_id = f"{product_id}_{index}"
+
+                inventory_data = inventory_variants.get(
+                    variant_id
+                )
+
+                availability = get_availability(
+                    inventory_data
+                )
+
+                quantity = get_quantity(
+                    inventory_data,
+                    track_quantity,
+                )
+
+                choices = variant.get("choices", {})
+
+                print(
+                    f"  {google_id}"
+                    f" | Wix variant {variant_id}"
+                    f" | {choices}"
+                    f" | {availability}"
+                    f" | qty {quantity}"
+                )
+
+                rows.append(
+                    [
+                        google_id,
+                        STORE_CODE,
+                        availability,
+                        quantity,
+                    ]
+                )
+
+                variant_rows += 1
+
+        #
+        # NORMAL PRODUCT
+        #
+        else:
+            normal_products += 1
+
+            inventory_data = None
+
+            #
+            # Even ordinary products normally have one underlying
+            # Wix inventory variant.
+            #
+            if visible_variants:
+                wix_variant_id = visible_variants[0].get(
+                    "id"
+                )
+
+                inventory_data = inventory_variants.get(
+                    wix_variant_id
+                )
+
+            #
+            # Fallback for unusual inventory structures.
+            #
+            if inventory_data is None and inventory_variants:
+                inventory_data = next(
+                    iter(inventory_variants.values())
+                )
+
+            availability = get_availability(
+                inventory_data
+            )
+
+            quantity = get_quantity(
+                inventory_data,
+                track_quantity,
+            )
+
+            rows.append(
+                [
+                    product_id,
+                    STORE_CODE,
+                    availability,
+                    quantity,
+                ]
+            )
+
+    #
+    # Safety check: duplicate Google IDs should never exist.
+    #
+    ids = [row[0] for row in rows]
+
+    duplicate_ids = {
+        item_id
+        for item_id in ids
+        if ids.count(item_id) > 1
+    }
+
+    if duplicate_ids:
+        raise RuntimeError(
+            "Duplicate Google product IDs generated: "
+            + ", ".join(sorted(duplicate_ids))
+        )
 
     with OUTPUT_FILE.open(
         "w",
@@ -213,40 +461,19 @@ def build_inventory_file() -> None:
             ]
         )
 
-        for product in products:
-            if not product_is_visible(product):
-                skipped_hidden += 1
-                continue
-
-            product_id = get_product_id(product)
-
-            if not product_id:
-                print("Warning: product without ID skipped")
-                skipped_without_id += 1
-                continue
-
-            inventory_status = get_inventory_status(product)
-            availability = normalize_availability(inventory_status)
-            quantity = get_quantity(product)
-
-            writer.writerow(
-                [
-                    product_id,
-                    STORE_CODE,
-                    availability,
-                    quantity,
-                ]
-            )
-
-            written_rows += 1
+        writer.writerows(rows)
 
     print("")
-    print("Inventory generation completed.")
-    print(f"Products received: {len(products)}")
-    print(f"Rows written: {written_rows}")
-    print(f"Hidden products skipped: {skipped_hidden}")
-    print(f"Products without ID skipped: {skipped_without_id}")
-    print(f"Output file: {OUTPUT_FILE}")
+    print("======================================")
+    print("Local inventory feed completed")
+    print("======================================")
+    print(f"Wix products received: {len(products)}")
+    print(f"Normal product rows: {normal_products}")
+    print(f"Variant products: {variant_products}")
+    print(f"Variant rows: {variant_rows}")
+    print(f"Hidden products skipped: {hidden_products}")
+    print(f"TOTAL GOOGLE ROWS: {len(rows)}")
+    print(f"Output: {OUTPUT_FILE}")
 
 
 if __name__ == "__main__":
