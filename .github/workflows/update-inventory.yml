@@ -33,6 +33,12 @@ jobs:
           STORE_CODE: ${{ secrets.STORE_CODE }}
         run: python update_inventory.py
 
+      - name: Generate local Shopping custom labels
+        env:
+          WIX_API_KEY: ${{ secrets.WIX_API_KEY }}
+          WIX_SITE_ID: ${{ secrets.WIX_SITE_ID }}
+        run: python generate_local_ads_labels.py
+
       - name: Commit updated feed
         run: |
           if [ -z "$(git status --porcelain docs/)" ]; then
