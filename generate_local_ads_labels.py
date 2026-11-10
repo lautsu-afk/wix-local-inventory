@@ -36,6 +36,18 @@ def read_collection(collection_id: str) -> list[dict[str, Any]]:
             headers=HEADERS,
             timeout=60,
         )
+        if response.status_code == 403:
+            try:
+                error_data = response.json()
+                wix_error = str(error_data.get("message") or error_data.get("details") or "")
+            except ValueError:
+                wix_error = response.text[:500]
+            raise RuntimeError(
+                f"Wix CMS access denied for {collection_id} (HTTP 403). "
+                "The GitHub WIX_API_KEY likely lacks Wix CMS 'Read Data Items' "
+                "permission (SCOPE.DC-DATA.READ), or this collection's read "
+                f"permissions deny access. Wix response: {wix_error[:500]}"
+            )
         response.raise_for_status()
         page = response.json().get("dataItems", [])
         all_items.extend(item.get("data", {}) for item in page)
