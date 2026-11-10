@@ -338,9 +338,18 @@ def build_inventory_file() -> None:
         # product-id_2
         #
         # in the same order that Wix Query Product Variants
-        # returns the visible variants.
+        # returns variants. Hidden variants keep their index,
+        # even when they are not exported.
         #
-        if len(visible_variants) > 1:
+        # A Wix product can have an option (e.g. one timber
+        # length) with just ONE visible choice. It still uses
+        # a variant ID in the primary Google product feed.
+        # An ordinary product without options uses the bare ID.
+        #
+        has_product_options = bool(product.get("productOptions"))
+        if len(visible_variants) > 1 or (
+            has_product_options and visible_variants
+        ):
             variant_products += 1
 
             print("")
@@ -350,8 +359,14 @@ def build_inventory_file() -> None:
             )
 
             for index, variant in enumerate(
-                visible_variants
+                variants
             ):
+                # Do not renumber variants when some choices are hidden.
+                if (
+                    variant.get("variant") or {}
+                ).get("visible") is False:
+                    continue
+
                 variant_id = variant.get("id")
 
                 if not variant_id:
