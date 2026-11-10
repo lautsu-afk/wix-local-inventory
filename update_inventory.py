@@ -346,7 +346,10 @@ def build_inventory_file() -> None:
         # a variant ID in the primary Google product feed.
         # An ordinary product without options uses the bare ID.
         #
-        has_product_options = bool(product.get("productOptions"))
+        has_product_options = bool(product.get("productOptions")) or any(
+            bool(variant.get("choices"))
+            for variant in variants
+        )
         if len(visible_variants) > 1 or (
             has_product_options and visible_variants
         ):
