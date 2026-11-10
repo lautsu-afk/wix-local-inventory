@@ -84,7 +84,9 @@ def build_labels() -> None:
 
     unknown = set(by_product.values()) - known_keys
     if unknown:
-        raise RuntimeError(f"Some product profiles are missing from selection table: {sorted(unknown)}")
+        # New profile keys are excluded until the merchant adds and enables
+        # them in GoogleAdsLocalProfiles. Inventory exports must keep running.
+        print(f"INFO: Unselected new product profile keys: {sorted(unknown)}")
 
     # Wix variant item IDs are product UUID + "_0", "_1", ...
     # The base UUID is also used as ProductShippingProfiles.title.
