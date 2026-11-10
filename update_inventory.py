@@ -113,7 +113,8 @@ def get_product_variants(product_id: str) -> list[dict[str, Any]]:
 
     while True:
         body = {
-            "includeMerchantSpecificData": True,
+            # Only variant ID, choices and visibility are needed for the feed.
+            # Do not request merchant-only cost/profit fields.
             "paging": {
                 "limit": limit,
                 "offset": offset,
