@@ -33,13 +33,7 @@ jobs:
           STORE_CODE: ${{ secrets.STORE_CODE }}
         run: python update_inventory.py
 
-      - name: Generate local Shopping custom labels
-        env:
-          WIX_API_KEY: ${{ secrets.WIX_API_KEY }}
-          WIX_SITE_ID: ${{ secrets.WIX_SITE_ID }}
-        run: python generate_local_ads_labels.py
-
-      - name: Commit updated feed
+      - name: Commit updated inventory feed
         run: |
           if [ -z "$(git status --porcelain docs/)" ]; then
             echo "Inventory data has not changed."
@@ -49,6 +43,27 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add docs/
+          git add docs/local_inventory.tsv docs/index.html docs/.nojekyll
+          git diff --cached --quiet && exit 0
           git commit -m "Update local inventory feed"
+          git push
+
+      - name: Generate local Shopping custom labels
+        env:
+          WIX_API_KEY: ${{ secrets.WIX_API_KEY }}
+          WIX_SITE_ID: ${{ secrets.WIX_SITE_ID }}
+        run: python generate_local_ads_labels.py
+
+      - name: Commit updated local Shopping labels
+        run: |
+          if [ -z "$(git status --porcelain docs/local_ads_labels.tsv)" ]; then
+            echo "Local Shopping labels have not changed."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/local_ads_labels.tsv
+          git commit -m "Update local Shopping product labels"
           git push
