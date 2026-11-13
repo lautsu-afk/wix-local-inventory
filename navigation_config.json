@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "source": "Wix Stores Catalog V1",
+  "main_category_ids": [
+    "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "38c4ba99-41fd-32ae-640e-136e77d12411",
+    "0800133e-b48f-7130-b65a-dd85fa384a14",
+    "64d19278-d6e4-caad-4f3f-0bdc1878d84e",
+    "ff30c235-4779-e0f5-9500-f130b4c63a8e"
+  ],
+  "parent_by_category_id": {
+    "8f2814a1-f45e-5648-315a-8907b72114a6": null,
+    "96188c60-3f1f-9c0f-649d-a4f7dd011465": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "b5b3fae1-37eb-fa92-f3d3-8477084d4638": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "39b16dd1-91c1-89cd-f9c0-bd4ce8440245": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "9ef2943b-8051-b1d0-86a0-c61704345b5e": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "58adfa46-718c-5b7e-c7b6-d41027ba01a6": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "c3e66c1b-a625-895f-1c95-ed98c213037d": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "765b7de5-add0-8b46-6044-a41920fc3e0c": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "86ad08b3-750f-db1f-6e85-af792c4924b9": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "1a2b4f01-40fb-8985-e8e9-f812ef725042": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "fed16fd8-57cf-b4ce-ad2b-c883500c59b1": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "ceff2d83-c552-b90f-79fc-2f7d7ef453dc": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "f473fb67-1a6c-904e-d516-75062eddb523": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "8e8b2a1b-d57f-026d-1672-b76995bf2626": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "fc6cb442-802f-446e-91e8-823d2d9555e3": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "a0ffc59b-7eab-4d4b-b7e7-68106f94b739": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "58617192-5cca-c86f-dd72-49af5d6e31ff": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "6c7a8f0f-0ff3-5f43-7711-368ebb60f56b": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "0e58b1ee-b506-b4ff-9eed-f4f4d4df7ff5": "8f2814a1-f45e-5648-315a-8907b72114a6",
+    "38c4ba99-41fd-32ae-640e-136e77d12411": null,
+    "1093112f-4d2d-f16a-06ec-d19f3b800974": "38c4ba99-41fd-32ae-640e-136e77d12411",
+    "6401db16-6506-52c8-1784-dbf3f62f0bcb": "38c4ba99-41fd-32ae-640e-136e77d12411",
+    "71698d89-2f41-bc1f-868d-474d60f65a46": "38c4ba99-41fd-32ae-640e-136e77d12411",
+    "c1af7db4-0776-8adc-29aa-a46a9866686a": "38c4ba99-41fd-32ae-640e-136e77d12411",
+    "dd01edb1-c688-3e62-e5aa-c35902f1cf3c": "38c4ba99-41fd-32ae-640e-136e77d12411",
+    "9bdb5bed-7166-4483-4fa3-68a14ff85e97": "38c4ba99-41fd-32ae-640e-136e77d12411",
+    "6bb160f7-e762-7c14-0b2f-78045120a54c": "38c4ba99-41fd-32ae-640e-136e77d12411",
+    "0800133e-b48f-7130-b65a-dd85fa384a14": null,
+    "ea0aa251-0b44-4b04-8c98-29487af5fc15": "0800133e-b48f-7130-b65a-dd85fa384a14",
+    "96200d96-e9dd-6ae4-519b-14efd3b8b156": "0800133e-b48f-7130-b65a-dd85fa384a14",
+    "6a822819-050c-47e3-a303-58a87daa097d": "0800133e-b48f-7130-b65a-dd85fa384a14",
+    "1f1e37c5-9470-4cc2-1469-b51843a6b0b7": "0800133e-b48f-7130-b65a-dd85fa384a14",
+    "50597065-bf03-4e2d-b743-2ec610391199": "0800133e-b48f-7130-b65a-dd85fa384a14",
+    "64d19278-d6e4-caad-4f3f-0bdc1878d84e": null,
+    "cd00d9ef-e39b-4680-bb1d-3162a012097c": "64d19278-d6e4-caad-4f3f-0bdc1878d84e",
+    "899cab5c-2cf4-46c3-ad30-fdf2c96a0f98": "64d19278-d6e4-caad-4f3f-0bdc1878d84e",
+    "14f2c118-3149-4a0e-ab0e-4bd908715e0d": "64d19278-d6e4-caad-4f3f-0bdc1878d84e",
+    "5b57261a-b941-2188-b387-a69b1c51c14a": "64d19278-d6e4-caad-4f3f-0bdc1878d84e",
+    "35405d1c-7643-9bde-37db-dce92158c718": "64d19278-d6e4-caad-4f3f-0bdc1878d84e",
+    "9eb68929-9159-a015-3ab3-2cd4bf09ec36": "64d19278-d6e4-caad-4f3f-0bdc1878d84e",
+    "8ae4ec71-65b5-d03c-da83-b345c344edbf": "64d19278-d6e4-caad-4f3f-0bdc1878d84e",
+    "ff30c235-4779-e0f5-9500-f130b4c63a8e": null,
+    "dafb4cc2-84e9-b391-b03a-c42e96a340cb": "9ef2943b-8051-b1d0-86a0-c61704345b5e",
+    "f6be3529-03e4-a857-978b-28cab4ea30cf": "9ef2943b-8051-b1d0-86a0-c61704345b5e"
+  },
+  "menu_descriptions_by_main_id": {
+    "8f2814a1-f45e-5648-315a-8907b72114a6": "Rakennustarvikkeet- ja tuotteet -kategoriasta löydät tuotteita rakentamiseen, korjaamiseen ja asennustöihin. Kategoria sopii pieniin remontteihin ja täydentäviin hankintoihin. Valikoima koostuu poistotuotteista.",
+    "38c4ba99-41fd-32ae-640e-136e77d12411": "Maataloustarvikkeet-kategoriasta löydät käytännöllisiä tuotteita maatilan arkeen, huoltoon ja käyttöön. Kategoria kokoaa yhteen tarvikkeita päivittäisiin tarpeisiin. Valikoima koostuu poistotuotteista.",
+    "0800133e-b48f-7130-b65a-dd85fa384a14": "",
+    "64d19278-d6e4-caad-4f3f-0bdc1878d84e": "Työkalut-kategoriasta löydät tuotteita työskentelyyn, asennuksiin, huoltoon ja remontointiin. Kategoria sopii sekä kotikäyttäjälle että ammattilaiselle. Valikoima koostuu poistotuotteista.",
+    "ff30c235-4779-e0f5-9500-f130b4c63a8e": ""
+  },
+  "main_display_name_overrides": {
+    "8f2814a1-f45e-5648-315a-8907b72114a6": {
+      "whenWixName": "Rakennustarvikkeet",
+      "heading": "Rakennustarvikkeet- ja tuotteet",
+      "breadcrumb": "Rakennustarvikkeet"
+    }
+  },
+  "note": "Parent relations keyed by Wix category ID survive category renames and URL slug changes. New category parent inferred by product overlap, or shown under Kaikki tuotteet if ambiguous."
+}
