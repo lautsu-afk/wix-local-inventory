@@ -66,6 +66,11 @@
       "whenWixName": "Rakennustarvikkeet",
       "heading": "Rakennustarvikkeet- ja tuotteet",
       "breadcrumb": "Rakennustarvikkeet"
+    },
+    "1a2b4f01-40fb-8985-e8e9-f812ef725042": {
+      "whenWixName": "Sähkötarvikkkeet",
+      "heading": "Sähkötarvikkeet",
+      "breadcrumb": "Sähkötarvikkeet"
     }
   },
   "note": "Parent relations keyed by Wix category ID survive category renames and URL slug changes. New category parent inferred by product overlap, or shown under Kaikki tuotteet if ambiguous."
