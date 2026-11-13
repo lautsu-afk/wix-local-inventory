@@ -2,6 +2,9 @@ name: Update Wix category navigation
 
 on:
   workflow_dispatch:
+  # Wix CMS Kategoriahierarkia data.js calls GitHub repository_dispatch.
+  repository_dispatch:
+    types: [wix-category-navigation]
   push:
     branches: [main]
     paths:
@@ -51,4 +54,13 @@ jobs:
           git add docs/navigation.json docs/navigation.js
           git diff --cached --quiet && exit 0
           git commit -m "Update Wix category navigation"
-          git push
+          for attempt in 1 2 3; do
+            git pull --rebase origin main || exit 1
+            if git push; then
+              echo "Published navigation data."
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Unable to publish navigation after retries." >&2
+          exit 1
