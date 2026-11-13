@@ -9,7 +9,7 @@ on:
       - "generate_navigation.py"
       - ".github/workflows/update-navigation.yml"
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
