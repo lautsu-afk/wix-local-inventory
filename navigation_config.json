@@ -62,11 +62,6 @@
     "ff30c235-4779-e0f5-9500-f130b4c63a8e": ""
   },
   "main_display_name_overrides": {
-    "8f2814a1-f45e-5648-315a-8907b72114a6": {
-      "whenWixName": "Rakennustarvikkeet",
-      "heading": "Rakennustarvikkeet- ja tuotteet",
-      "breadcrumb": "Rakennustarvikkeet"
-    },
     "1a2b4f01-40fb-8985-e8e9-f812ef725042": {
       "whenWixName": "Sähkötarvikkkeet",
       "heading": "Sähkötarvikkeet",
