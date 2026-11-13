@@ -6,7 +6,7 @@ Source of truth:
 - product collection membership: Wix Stores Catalog V1
 - parent-category hierarchy: editable Wix CMS Kategoriahierarkia references
 - presentation text overrides: navigation_config.json (fixed labels, headings)
-No Wix data is modified. Output is used by the site's existing custom embeds.
+Only the navigation CMS index of category names and new categories is maintained; store products and category memberships are not modified. Output serves the existing custom embeds.
 """
 from __future__ import annotations
 
