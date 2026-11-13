@@ -7,7 +7,7 @@
 1. Avaa M. Lautamäki Oy -sivuston Wix-hallintapaneelista **CMS** ja kokoelma **Kategoriahierarkia**.
 2. Etsi muokattava rivi **Kategoria**-sarakkeesta.
 3. Avaa **Yläkategoria (valitse listasta)** -kenttä. Valitse haluamasi yläkategoria sen nimellä tai tyhjennä kenttä, jos haluat kategorian suoraan **Kaikki tuotteet** -tason alle.
-4. Tallenna muutos. GitHub Actions lukee muutoksen automaattisesti 30 minuutin välein. GitHub Pagesin julkaisu ja selaimen 15 minuutin välimuisti voivat pidentää näkyvyyden viivettä.
+4. Tallenna muutos. GitHub Actions lukee muutoksen automaattisesti 5 minuutin välein. GitHub Pagesin julkaisu ja selaimen 15 minuutin välimuisti voivat pidentää näkyvyyden viivettä.
 
 **Pääkategoria**-valintaruutu tarkoittaa ylimmän tason pääryhmää. Pääkategorian yläkategoria jätetään tyhjäksi.
 
@@ -25,7 +25,7 @@ Kaikille kategorioille, joilla on suoria alaryhmiä, syntyy **Alakategoriat**-va
 
 ## Päivitys ja varajärjestelmä
 
-GitHub Actions -työnkulku `Update Wix category navigation` suoritetaan **30 minuutin välein** ja kun sen lähdekoodia muutetaan. Ajo hakee:
+GitHub Actions -työnkulku `Update Wix category navigation` suoritetaan **5 minuutin välein** ja kun sen lähdekoodia muutetaan. Ajo hakee:
 
 - Wixin Catalog V1 -tuotteet ja -kategoriat
 - Wixin **Kategoriahierarkia** CMS -rivien `parent`-viittaukset sekä `isMain`-valinnat
@@ -39,9 +39,11 @@ Mikäli CMS:n haku epäonnistuu, automaatio keskeyttää julkaisun eikä korvaa 
 
 - `generate_navigation.py`: live-tietojen haku, CMS:n synkronointi ja navigaation muodostus
 - `navigation_config.json`: esitystavan poikkeukset sekä alkuperäisen rakenteen varatiedot; **ei enää normaali yläkategorioiden muokkauspaikka**
-- `.github/workflows/update-navigation.yml`: 30 minuutin ajastus
+- `.github/workflows/update-navigation.yml`: 5 minuutin ajastus
 - `docs/navigation.json` ja `docs/navigation.js`: julkaistavat navigaatiotiedot
 
 Päivityksen onnistumisen voi tarkistaa GitHubin **Actions → Update Wix category navigation** -näkymästä tai käynnistää siellä käsin **Run workflow**.
+
+Wix Velo -tapahtumapohjaisen välittömän päivityksen erillinen asennusohje: [wix-velo/CATEGORY_EVENTS_INSTALL.md](wix-velo/CATEGORY_EVENTS_INSTALL.md). Tapahtumakäsittelijät on valmisteltu, mutta niitä ei ole vielä lisätty julkaistuun Wix backend/events.js -tiedostoon.
 
 Tämä toteutus on erillinen nykyisestä Google Merchant Centerin varasto-/Shopping-syöteautomaatiosta.
