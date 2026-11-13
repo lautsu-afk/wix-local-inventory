@@ -268,6 +268,16 @@ def main() -> None:
     for cid in main_ids:
         parent_of[cid] = None
 
+    # CMS is the authoritative hierarchy. Its parent references may point to
+    # several nested levels and take precedence over legacy static mappings.
+    # Raise an explicit error rather than publishing a stale/partial hierarchy
+    # if a CMS parent points to a missing row.
+    for cid, parent_id in parent_of.items():
+        if cid in cms_by_id and parent_id and parent_id not in cms_by_id:
+            raise RuntimeError(
+                f"Kategoriahierarkia parent {parent_id} for {cid} is missing in Wix CMS"
+            )
+
     # Product membership gives a safe indication of moved/new subcategories.
     category_members: dict[str, set[str]] = defaultdict(set)
     for p in products:
