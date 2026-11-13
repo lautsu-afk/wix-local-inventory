@@ -166,7 +166,7 @@ def main() -> None:
         menus[cat["slug"]] = {
             "name": get_label(cat, overrides, breadcrumb=False),
             "description": desc_by_id.get(mid, ""),
-            "links": [{"label": c["name"], "href": url(c["slug"])} for c in kids],
+            "links": [{"label": get_label(c, overrides), "href": url(c["slug"])} for c in kids],
         }
 
     # Product category selection follows the existing breadcrumb priorities,
