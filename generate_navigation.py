@@ -35,14 +35,17 @@ HEADERS = {
 ALL_PRODUCTS_NAME = "All Products"
 
 
-def query_all(endpoint: str, field: str) -> list[dict]:
+def query_all(endpoint: str, field: str, *, include_hidden: bool = False) -> list[dict]:
     records: list[dict] = []
     session = requests.Session()
     for offset in range(0, 100000, PAGE_LIMIT):
+        payload = {"query": {"paging": {"limit": PAGE_LIMIT, "offset": offset}}}
+        if include_hidden:
+            payload["includeHiddenProducts"] = True
         response = session.post(
             BASE + endpoint,
             headers=HEADERS,
-            json={"query": {"paging": {"limit": PAGE_LIMIT, "offset": offset}}},
+            json=payload,
             timeout=60,
         )
         if not response.ok:
@@ -72,7 +75,7 @@ def get_label(category: dict, overrides: dict, *, breadcrumb: bool = True) -> st
 def main() -> None:
     config = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
     categories = query_all("/collections/query", "collections")
-    products = query_all("/products/query", "products")
+    products = query_all("/products/query", "products", include_hidden=True)
     by_id = {c["id"]: c for c in categories}
     active = {c["id"]: c for c in categories if c.get("visible") is not False}
     all_products = next((c for c in categories if c["name"] == ALL_PRODUCTS_NAME), None)
@@ -111,23 +114,17 @@ def main() -> None:
         return winners[0] if len(winners) == 1 else None
 
     inferred = []
-    reassigned = []
+    # Existing parent mappings are explicit editorial choices. Product overlap
+    # alone must not move an established subcategory into another main category.
+    # Brand-new categories can be assigned when their membership has one clear
+    # main-category winner. Ambiguous ones stay directly below All Products.
     for cid, cat in active.items():
-        if cid in (all_id, *main_ids):
+        if cid in (all_id, *main_ids) or cid in parent_of:
             continue
-        previous = parent_of.get(cid)
         likely = most_likely_main(cid)
-        if previous is None:
-            parent_of[cid] = likely
-            if likely:
-                inferred.append(cat["name"])
-        elif previous in main_ids and likely and likely != previous:
-            # Reparent only when its old main-category association vanished
-            # completely, preventing general "Rakennustarvikkeet" membership
-            # from disrupting the existing tool subcategories.
-            if len(category_members[cid] & category_members[previous]) == 0:
-                parent_of[cid] = likely
-                reassigned.append(cat["name"])
+        parent_of[cid] = likely
+        if likely:
+            inferred.append(cat["name"])
 
     first = {"label": "Kaikki tuotteet", "href": url(all_products["slug"])}
     paths_by_id: dict[str, list[dict]] = {}
@@ -257,7 +254,7 @@ def main() -> None:
     )
     print(
         f"Navigation refreshed: {len(paths)} categories, {len(product_categories)} products, "
-        f"{len(menus)} submenu groups; inferred={inferred}, reassigned={reassigned}"
+        f"{len(menus)} submenu groups; inferred={inferred}"
     )
 
 
