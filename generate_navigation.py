@@ -347,6 +347,20 @@ def main() -> None:
     paths = {cat["slug"]: paths_by_id[cid] for cid, cat in active.items()}
     menus: dict[str, dict] = {}
     desc_by_id = config.get("menu_descriptions_by_main_id", {})
+    # All Products is the navigation root: show only the five CMS main
+    # categories as pills, without changing category hierarchy or breadcrumbs.
+    root_children = sorted(
+        (active[cid] for cid in main_ids),
+        key=lambda c: get_label(c, overrides).casefold(),
+    )
+    menus[all_products["slug"]] = {
+        "name": "Kaikki tuotteet",
+        "description": "",
+        "links": [
+            {"label": get_label(c, overrides), "href": url(c["slug"])}
+            for c in root_children
+        ],
+    }
     for mid, cat in active.items():
         if mid == all_id:
             continue
