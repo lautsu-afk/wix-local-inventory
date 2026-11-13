@@ -400,10 +400,29 @@ def main() -> None:
             if not category or cid == all_id:
                 continue
             name = category["name"]
-            score = priorities.get(name, main_priority.get(name, 65))
-            # Prefer deeper specific categories on otherwise similar products.
+            # New nested CMS categories inherit their closest named ancestor's
+            # breadcrumb priority. Otherwise a specific child defaults to 65
+            # and incorrectly loses to its parent (e.g. Ruuvimeisselit).
+            score = priorities.get(name, main_priority.get(name))
+            if score is None:
+                ancestor = parent_of.get(cid)
+                seen_ancestors = {cid}
+                while ancestor in active and ancestor not in seen_ancestors:
+                    seen_ancestors.add(ancestor)
+                    ancestor_name = active[ancestor]["name"]
+                    ancestor_score = priorities.get(
+                        ancestor_name, main_priority.get(ancestor_name)
+                    )
+                    if ancestor_score is not None:
+                        score = ancestor_score
+                        break
+                    ancestor = parent_of.get(ancestor)
+            if score is None:
+                score = 65
+            # Prefer the most specific eligible group at each deeper level.
+            # CMS parent references determine depth; no hardcoded level limit.
             if len(paths_by_id[cid]) > 3:
-                score += 10
+                score += 10 * (len(paths_by_id[cid]) - 3)
             if name == "Sauna" and re.search(
                 r"sauna|kiuas|harvia|saunapiippu", p.get("name", ""), re.I
             ):
