@@ -335,10 +335,12 @@ def main() -> None:
     paths = {cat["slug"]: paths_by_id[cid] for cid, cat in active.items()}
     menus: dict[str, dict] = {}
     desc_by_id = config.get("menu_descriptions_by_main_id", {})
-    for mid in main_ids:
-        cat = active[mid]
+    for mid, cat in active.items():
+        if mid == all_id:
+            continue
         kids = [c for cid, c in active.items() if parent_of.get(cid) == mid]
-        # Under Catalog V1, parent relations are virtual. Use current names/URLs.
+        # Any category with direct children gets an Alakategoriat navigation,
+        # including nested groups below the five original main categories.
         kids.sort(key=lambda x: x["name"].casefold())
         if not kids:
             continue
