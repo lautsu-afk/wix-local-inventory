@@ -38,6 +38,17 @@ hierarkiamuutoksen heti GitHubista:
 **Actions → Update Wix category navigation → Run workflow**.
 Tämä muodostaa uusimman CMS-puun, jonka sivu lataa GitHub Pagesista.
 
+## Kaksinkertainen ajastus (13.11.2026)
+
+Navigaatiolla on nyt kaksi cron-ajastusreittiä:
+
+1. `.github/workflows/update-navigation.yml`: itsenäinen navigaatiotyönkulku, jonka päivittäminen käsin ja koodipushilla toimii. Sen `schedule`-käynnistyksiä ei ole vielä havaittu GitHubissa.
+2. `.github/workflows/update-inventory.yml`: tässä pitkään toimineessa ajastetussa työnkulussa on lisätty **oma** `navigation-fallback`-job, jonka 5 minuutin cron on `3-59/5 * * * *`. Alkuperäinen varastosyötteen `update-inventory`-job on rajattu yöajastukseen ja käsin käynnistykseen eikä käy viiden minuutin välein.
+
+Navigaation varajobi odottaa yön varastosyötettä, jotta kaksi työnkulkua eivät kirjoita samaan GitHub-haaraan yhtä aikaa. Viiden minuutin ajoissa varastojobi ohitetaan tarkoituksella ja navigaatio päivitetään Wix CMS:stä.
+
+**Varmistuksen tila:** uuden viiden minuutin aikataulun `schedule`-tapahtuman toiminta tulee vahvistaa GitHub Actions -ajohistoriasta. Koodipushista tai käsin käynnistetty onnistunut ajo ei ole ajastuksen toiminnan todiste.
+
 ## Päivitys ja varajärjestelmä
 
 GitHub Actions -työnkulku `Update Wix category navigation` suoritetaan **5 minuutin välein** ja kun sen lähdekoodia muutetaan. Ajo hakee:
