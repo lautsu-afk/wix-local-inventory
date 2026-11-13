@@ -23,6 +23,21 @@ Wix-kategorian nimen, URL-osoitteen, näkyvyyden tai tuotteen kategorian muutoks
 
 Kaikille kategorioille, joilla on suoria alaryhmiä, syntyy **Alakategoriat**-valikko; alaryhmien ja tuotteiden breadcrumbit rakentuvat saman CMS-hierarkian mukaan.
 
+## Ajastuksen toiminnan tarkistaminen
+
+**Huomio 13.11.2026:** Ajastuksen viiden minuutin cron-asetus oli
+GitHubissa, mutta ajohistoriassa näkyi vain `push`-käynnistyksiä,
+ei vielä yhtään `schedule`-käynnistystä. GitHubin cron muutettiin
+arvosta `*/5 * * * *` arvoon `2-59/5 * * * *`, jotta aikataulu
+rekisteröityy uudelleen ja väistää tunnin alun kuormituspiikin.
+Tämä ei ole vielä näyttö siitä, että tulevat `schedule`-ajot
+käynnistyvät säännöllisesti.
+
+Kunnes `schedule`-ajo on vahvistettu ajohistoriasta, voit päivittää
+hierarkiamuutoksen heti GitHubista:
+**Actions → Update Wix category navigation → Run workflow**.
+Tämä muodostaa uusimman CMS-puun, jonka sivu lataa GitHub Pagesista.
+
 ## Päivitys ja varajärjestelmä
 
 GitHub Actions -työnkulku `Update Wix category navigation` suoritetaan **5 minuutin välein** ja kun sen lähdekoodia muutetaan. Ajo hakee:
