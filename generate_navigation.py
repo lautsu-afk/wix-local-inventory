@@ -245,9 +245,12 @@ def main() -> None:
         old.pop("generatedAt", None)
         new = dict(result)
         new.pop("generatedAt", None)
-        if old == new:
+        if old == new and SCRIPT_OUTPUT_FILE.exists():
             print("No navigation changes to publish.")
             return
+        if old == new:
+            # Generate the JS variant without refreshing the data timestamp.
+            result = json.loads(OUTPUT_FILE.read_text(encoding="utf-8"))
 
     raw = json.dumps(result, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     OUTPUT_FILE.write_text(raw + "\n", encoding="utf-8")
