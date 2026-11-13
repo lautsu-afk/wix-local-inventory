@@ -40,25 +40,48 @@ jobs:
           WIX_SITE_ID: ${{ secrets.WIX_SITE_ID }}
         run: python generate_navigation.py
 
-      - name: Commit and publish navigation updates
+      - name: Commit and publish navigation updates safely
+        env:
+          WIX_API_KEY: ${{ secrets.WIX_API_KEY }}
+          WIX_SITE_ID: ${{ secrets.WIX_SITE_ID }}
         run: |
-          if [ -z "$(git status --porcelain docs/navigation.json docs/navigation.js)" ]; then
-            echo "No navigation changes."
-            exit 0
-          fi
-
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/navigation.json docs/navigation.js
-          git diff --cached --quiet && exit 0
-          git commit -m "Update Wix category navigation"
-          for attempt in 1 2 3; do
-            git pull --rebase origin main || exit 1
-            if git push; then
+
+          # Multiple Wix CMS changes can trigger numerous repository_dispatch
+          # runs. Never rebase generated JSON/JS: concurrent changes to those
+          # files conflict even when both contain valid navigation updates.
+          # On a push race, reset ONLY the runner's checkout to the latest
+          # remote main, re-query Wix, and regenerate both derived files.
+          for attempt in 1 2 3 4 5; do
+            if [ "$attempt" -gt 1 ]; then
+              echo "Refreshing navigation from latest main (attempt $attempt)"
+              git fetch origin main
+              git reset --hard origin/main
+              python generate_navigation.py
+            fi
+
+            if [ -z "$(git status --porcelain -- docs/navigation.json docs/navigation.js)" ]; then
+              echo "Navigation already current; nothing to publish."
+              exit 0
+            fi
+
+            git add docs/navigation.json docs/navigation.js
+            if git diff --cached --quiet; then
+              echo "No navigation changes."
+              exit 0
+            fi
+            git commit -m "Update Wix category navigation"
+
+            if git push origin HEAD:main; then
               echo "Published navigation data."
               exit 0
             fi
-            sleep 3
+
+            echo "Concurrent update detected; will rebuild against latest main."
+            sleep $((attempt * 2))
           done
-          echo "Unable to publish navigation after retries." >&2
+
+          echo "Unable to publish navigation after five fresh rebuild attempts." >&2
           exit 1
