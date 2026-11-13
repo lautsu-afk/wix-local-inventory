@@ -25,6 +25,7 @@ WIX_SITE_ID = os.environ["WIX_SITE_ID"]
 BASE = "https://www.wixapis.com/stores-reader/v1"
 CONFIG_FILE = Path("navigation_config.json")
 OUTPUT_FILE = Path("docs/navigation.json")
+SCRIPT_OUTPUT_FILE = Path("docs/navigation.js")
 PAGE_LIMIT = 100
 
 HEADERS = {
@@ -248,8 +249,13 @@ def main() -> None:
             print("No navigation changes to publish.")
             return
 
-    OUTPUT_FILE.write_text(
-        json.dumps(result, ensure_ascii=False, separators=(",", ":"), sort_keys=True) + "\n",
+    raw = json.dumps(result, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    OUTPUT_FILE.write_text(raw + "\n", encoding="utf-8")
+    # The browser loads the JavaScript variant as a regular script.
+    # This avoids CORS problems between Wix and GitHub Pages.
+    SCRIPT_OUTPUT_FILE.write_text(
+        "window.__lautamakiNavData=" + raw
+        + ";window.dispatchEvent(new Event('lautamaki-navigation-updated'));\n",
         encoding="utf-8",
     )
     print(
