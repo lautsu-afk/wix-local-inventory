@@ -25,6 +25,8 @@ WIX_API_KEY = os.environ["WIX_API_KEY"]
 WIX_SITE_ID = os.environ["WIX_SITE_ID"]
 BASE = "https://www.wixapis.com/stores-reader/v1"
 CMS_QUERY_URL = "https://www.wixapis.com/wix-data/v2/items/query"
+CMS_INSERT_URL = "https://www.wixapis.com/wix-data/v2/bulk/items/insert"
+CMS_PATCH_URL = "https://www.wixapis.com/wix-data/v2/items/"
 CMS_COLLECTION_ID = "Kategoriahierarkia"
 CONFIG_FILE = Path("navigation_config.json")
 OUTPUT_FILE = Path("docs/navigation.json")
@@ -94,6 +96,125 @@ def query_cms_hierarchy() -> list[dict]:
     if not rows:
         raise RuntimeError("Kategoriahierarkia CMS collection is empty")
     return rows
+
+
+def sync_cms_catalog(
+    categories: list[dict],
+    cms_items: list[dict],
+    main_ids: list[str],
+    parent_of: dict[str, str | None],
+) -> None:
+    """Keep the CMS editor's category selection up to date.
+
+    Only the display label, Wix slug and missing category records are managed.
+    Existing admin-selected parent references and isMain flags are NEVER
+    overwritten. CMS permission errors are reported, without preventing the
+    already-working breadcrumb manifest from being refreshed.
+    """
+    by_id = {item["id"]: item for item in cms_items}
+    missing = [
+        c for c in categories
+        if c["name"] != ALL_PRODUCTS_NAME and c["id"] not in by_id
+    ]
+    session = requests.Session()
+    if missing:
+        records = [
+            {
+                "id": c["id"],
+                "data": {
+                    "title": c["name"],
+                    "wixCategoryId": c["id"],
+                    "wixSlug": c["slug"],
+                    "isMain": c["id"] in main_ids,
+                },
+            }
+            for c in missing
+        ]
+        try:
+            resp = session.post(
+                CMS_INSERT_URL,
+                headers=HEADERS,
+                json={
+                    "dataCollectionId": CMS_COLLECTION_ID,
+                    "dataItems": records,
+                    "returnEntity": False,
+                },
+                timeout=60,
+            )
+            resp.raise_for_status()
+            meta = resp.json().get("bulkActionMetadata", {})
+            if meta.get("totalFailures", 0):
+                raise RuntimeError(f"CMS insert failures: {meta}")
+            print(f"Added {len(records)} newly created categories to CMS")
+        except (requests.RequestException, RuntimeError) as err:
+            print(f"WARNING: Unable to add new CMS categories: {err}", file=sys.stderr)
+
+    for c in categories:
+        item = by_id.get(c["id"])
+        if not item:
+            continue
+        old = item.get("data", {})
+        changes = []
+        for field, value in (("title", c["name"]), ("wixSlug", c["slug"])):
+            if old.get(field) != value:
+                changes.append({
+                    "fieldPath": field,
+                    "action": "SET_FIELD",
+                    "setFieldOptions": {"value": value},
+                })
+        if not changes:
+            continue
+        try:
+            resp = session.patch(
+                CMS_PATCH_URL + c["id"],
+                headers=HEADERS,
+                json={
+                    "dataCollectionId": CMS_COLLECTION_ID,
+                    "patch": {
+                        "dataItemId": c["id"],
+                        "fieldModifications": changes,
+                    },
+                },
+                timeout=60,
+            )
+            resp.raise_for_status()
+            print("Refreshed CMS label/URL for", c["name"])
+        except requests.RequestException as err:
+            print(
+                f"WARNING: Unable to update CMS category {c['name']}: {err}",
+                file=sys.stderr,
+            )
+
+    # The new CMS rows should inherit an inferred parent when unambiguous,
+    # so they become immediately editable with a named reference in Wix.
+    missing_ids = {c["id"] for c in missing}
+    for c in missing:
+        parent = parent_of.get(c["id"])
+        if not parent or parent in missing_ids:
+            continue
+        try:
+            resp = session.patch(
+                CMS_PATCH_URL + c["id"],
+                headers=HEADERS,
+                json={
+                    "dataCollectionId": CMS_COLLECTION_ID,
+                    "patch": {
+                        "dataItemId": c["id"],
+                        "fieldModifications": [{
+                            "fieldPath": "parent",
+                            "action": "SET_FIELD",
+                            "setFieldOptions": {"value": parent},
+                        }],
+                    },
+                },
+                timeout=60,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as err:
+            print(
+                f"WARNING: Unable to assign CMS parent for {c['name']}: {err}",
+                file=sys.stderr,
+            )
 
 
 def url(slug: str) -> str:
@@ -182,6 +303,8 @@ def main() -> None:
         parent_of[cid] = likely
         if likely:
             inferred.append(cat["name"])
+
+    sync_cms_catalog(categories, cms_items, main_ids, parent_of)
 
     first = {"label": "Kaikki tuotteet", "href": url(all_products["slug"])}
     paths_by_id: dict[str, list[dict]] = {}
