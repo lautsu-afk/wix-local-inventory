@@ -4,7 +4,8 @@
 Source of truth:
 - category names, slugs and visibility: Wix Stores Catalog V1
 - product collection membership: Wix Stores Catalog V1
-- parent-category hierarchy: navigation_config.json (stable Wix category IDs)
+- parent-category hierarchy: editable Wix CMS Kategoriahierarkia references
+- presentation text overrides: navigation_config.json (fixed labels, headings)
 No Wix data is modified. Output is used by the site's existing custom embeds.
 """
 from __future__ import annotations
@@ -23,6 +24,8 @@ import requests
 WIX_API_KEY = os.environ["WIX_API_KEY"]
 WIX_SITE_ID = os.environ["WIX_SITE_ID"]
 BASE = "https://www.wixapis.com/stores-reader/v1"
+CMS_QUERY_URL = "https://www.wixapis.com/wix-data/v2/items/query"
+CMS_COLLECTION_ID = "Kategoriahierarkia"
 CONFIG_FILE = Path("navigation_config.json")
 OUTPUT_FILE = Path("docs/navigation.json")
 SCRIPT_OUTPUT_FILE = Path("docs/navigation.js")
@@ -61,6 +64,38 @@ def query_all(endpoint: str, field: str, *, include_hidden: bool = False) -> lis
     return records
 
 
+def query_cms_hierarchy() -> list[dict]:
+    """Read the authoritative hierarchy from editable Wix CMS.
+    Fail closed if CMS cannot be read so an outdated config is never
+    silently republished over the owner's CMS changes.
+    """
+    rows: list[dict] = []
+    session = requests.Session()
+    for offset in range(0, 10000, PAGE_LIMIT):
+        response = session.post(
+            CMS_QUERY_URL,
+            headers=HEADERS,
+            json={
+                "dataCollectionId": CMS_COLLECTION_ID,
+                "query": {"paging": {"limit": PAGE_LIMIT, "offset": offset}},
+            },
+            timeout=60,
+        )
+        if not response.ok:
+            print(
+                "Wix CMS hierarchy query failed", response.status_code,
+                response.text[:1000], file=sys.stderr,
+            )
+            response.raise_for_status()
+        batch = response.json().get("dataItems", [])
+        rows.extend(batch)
+        if len(batch) < PAGE_LIMIT:
+            break
+    if not rows:
+        raise RuntimeError("Kategoriahierarkia CMS collection is empty")
+    return rows
+
+
 def url(slug: str) -> str:
     return "/category/" + quote(slug, safe="")
 
@@ -83,15 +118,34 @@ def main() -> None:
     if not all_products or all_products["id"] not in active:
         raise RuntimeError("Wix All Products category is missing")
 
-    main_ids = config["main_category_ids"]
-    if any(i not in active for i in main_ids):
-        raise RuntimeError("At least one configured main category is missing or inactive")
+    cms_items = query_cms_hierarchy()
+    cms_by_id = {}
+    for item in cms_items:
+        item_data = item.get("data", {})
+        cid = item_data.get("wixCategoryId") or item.get("id")
+        if cid in cms_by_id:
+            raise RuntimeError("Duplicate Wix category ID in Kategoriahierarkia: " + cid)
+        if item_data.get("wixCategoryId") and item_data["wixCategoryId"] != item["id"]:
+            raise RuntimeError("CMS category IDs do not match: " + cid)
+        cms_by_id[cid] = item_data
+
+    main_ids = [
+        cid for cid, data in cms_by_id.items()
+        if data.get("isMain") is True and cid in active
+    ]
+    if not main_ids:
+        raise RuntimeError("No main categories configured in Kategoriahierarkia")
 
     overrides = config.get("main_display_name_overrides", {})
-    configured_parents = config["parent_by_category_id"]
-    parent_of: dict[str, str | None] = dict(configured_parents)
+    parent_of: dict[str, str | None] = dict(config["parent_by_category_id"])
+    # Existing CMS rows are authoritative even when parent is intentionally
+    # cleared. Name/slug continue to come from the current Wix Stores catalog.
+    for cid, data in cms_by_id.items():
+        parent_of[cid] = data.get("parent") or None
     all_id = all_products["id"]
     parent_of[all_id] = None
+    for cid in main_ids:
+        parent_of[cid] = None
 
     # Product membership gives a safe indication of moved/new subcategories.
     category_members: dict[str, set[str]] = defaultdict(set)
@@ -120,8 +174,10 @@ def main() -> None:
     # Brand-new categories can be assigned when their membership has one clear
     # main-category winner. Ambiguous ones stay directly below All Products.
     for cid, cat in active.items():
-        if cid in (all_id, *main_ids) or cid in parent_of:
+        if cid in (all_id, *main_ids) or cid in cms_by_id:
             continue
+        # New categories without a CMS row are temporarily auto-inferred.
+        # Explicit CMS choices always take precedence.
         likely = most_likely_main(cid)
         parent_of[cid] = likely
         if likely:
