@@ -20,9 +20,17 @@ const SECRET_NAME = "GITHUB_NAVIGATION_TOKEN";
  */
 export async function requestNavigationRefresh(reason = "cms-change") {
   try {
-    const token = await getSecretValue(SECRET_NAME);
-    if (typeof token !== "string" || !token) {
-      throw new Error("Missing GITHUB_NAVIGATION_TOKEN secret");
+    // Wix APIs may return { value: "..." }; some Velo examples return a string.
+    // Accept both without ever logging the secret or its value.
+    const secretResponse = await getSecretValue(SECRET_NAME);
+    const token =
+      typeof secretResponse === "string"
+        ? secretResponse.trim()
+        : typeof secretResponse?.value === "string"
+          ? secretResponse.value.trim()
+          : "";
+    if (!token) {
+      throw new Error("GITHUB_NAVIGATION_TOKEN could not be read or is empty");
     }
     const response = await fetch(DISPATCH_URL, {
       method: "post",
