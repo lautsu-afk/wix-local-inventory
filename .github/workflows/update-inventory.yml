@@ -75,10 +75,10 @@ jobs:
           git push
 
   navigation-fallback:
-    # Run every five minutes and on the existing nightly schedule.
-    # The separate Update Wix category navigation workflow still handles
-    # immediate push/manual builds.
-    if: ${{ github.event_name == 'schedule' }}
+    # Wait for the original nightly inventory job before committing, but
+    # continue on five-minute runs when inventory is intentionally skipped.
+    needs: update-inventory
+    if: ${{ always() && github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     concurrency:
       group: wix-category-navigation
