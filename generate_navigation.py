@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Category membership navigation publication after Wix product reassignment, 2026-11-13.
+# Product-category cleanup and fourth-level membership publication (2026-11-13).
 """Build a read-only navigation manifest for lautamaki.fi from Wix Catalog V1.
 
 Source of truth:
