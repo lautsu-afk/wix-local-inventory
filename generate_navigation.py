@@ -449,9 +449,12 @@ def main() -> None:
                 score = 81
             if name == "Työkalusarjat" and "sarja" in p.get("name", "").lower():
                 score += 6
-            candidates.append((score, name.casefold(), cid))
+            # Equal-priority categories must favor the deeper CMS path:
+            # Rakennustarvikkeet > Tiilet ja harkot beats Rakennustarvikkeet.
+            # Keep explicit product-category priorities as the primary rule.
+            candidates.append((score, len(paths_by_id[cid]), name.casefold(), cid))
         best_cid = (
-            sorted(candidates, key=lambda a: (-a[0], a[1]))[0][2]
+            sorted(candidates, key=lambda a: (-a[0], -a[1], a[2]))[0][3]
             if candidates else all_id
         )
         product_categories[p["slug"].lower()] = active[best_cid]["slug"]
