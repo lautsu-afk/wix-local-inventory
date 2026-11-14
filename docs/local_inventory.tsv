@@ -1,4 +1,10 @@
 id	store_code	availability	quantity
+2d246141-3c8f-ca49-0511-00e0d0eaee8b	4523465	in_stock	14
+691cb28d-5144-a351-e6c3-294323c42abb	4523465	in_stock	22
+06e777c9-237a-32f6-ee63-7ddd1755e7b2	4523465	in_stock	5
+14cac0f0-70b9-dbcf-e7bc-43aae9dd9af9	4523465	in_stock	6
+2f70ca85-32a9-0221-1728-86800ce63f57	4523465	limited_availability	2
+55da3ff1-c2e2-53cd-8c3d-e59ebf306ada	4523465	in_stock	3
 e03490a2-0a66-41ee-9d54-273bc401a43b	4523465	limited_availability	1
 c3f9dd0b-4ea8-4b29-b9c2-a6b997e6e6da	4523465	limited_availability	1
 0fd9530c-bd66-49d3-b549-26facad50a2b	4523465	in_stock	20
@@ -135,7 +141,6 @@ d2d0a27e-a614-a1ba-0211-fa795a28b1b6	4523465	in_stock	45
 cadb2ca6-6b80-b572-f473-4f269a13adc9	4523465	limited_availability	1
 ec6ab370-d3b7-a2d0-b8ec-f22de556a11d	4523465	limited_availability	1
 f4289230-fd51-d069-a21d-afde12bc8963	4523465	limited_availability	1
-cf6b03a4-43b8-b96c-85eb-fc1ad5d873e9	4523465	limited_availability	1
 9094500d-3d08-60fe-7520-48a172cc6adb	4523465	in_stock	6
 c164eeb2-e6d0-fe40-0b41-3e1007d41be4	4523465	in_stock	3
 93c1b1e3-0870-9cd1-bb24-d4a3dd279f6c	4523465	in_stock	7
@@ -322,7 +327,7 @@ c8296663-299c-1a95-b868-9eb9a6e9b56a	4523465	limited_availability	1
 47e4b981-586f-ecbf-0ad4-02cfd880e855	4523465	limited_availability	1
 2c55391a-1366-1b21-8e7f-e67239c7b37d	4523465	limited_availability	1
 103122b7-696e-2c3b-a3ab-0749aa1e4345	4523465	limited_availability	1
-9aca5d30-215c-4c06-f1e1-c5f0493039de	4523465	in_stock	13
+9aca5d30-215c-4c06-f1e1-c5f0493039de	4523465	in_stock	12
 18eee970-e350-4659-ba35-7acf83cee44e	4523465	limited_availability	1
 464e6463-b80f-db91-3db1-3f19ead0497d	4523465	limited_availability	1
 ba703ca1-3977-0da7-22f9-63bbc8f273cb	4523465	limited_availability	2
@@ -417,4 +422,4 @@ b738102f-615f-c2fe-fe0f-812ab219bd1f	4523465	in_stock
 08693c83-1a0d-cdd7-32db-0c337646c2cb	4523465	in_stock	11
 c3d8c9df-1244-cfab-4e88-2c13232d950c	4523465	in_stock	105
 62be00d8-0586-2ca8-7c4d-c620442f094f	4523465	in_stock	60
-0aa879ad-233f-2372-8940-68ceead96907	4523465	in_stock	6
+0aa879ad-233f-2372-8940-68ceead96907	4523465	in_stock	5
