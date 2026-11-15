@@ -1,4 +1,23 @@
 id	store_code	availability	quantity
+5753feb5-58e8-a28e-5725-429416e0c610	4523465	limited_availability	1
+0e35da95-6999-07ee-0ef4-fbbb3ef52c1a	4523465	limited_availability	1
+dd8dd7fc-ed96-81b9-a31e-4940102245ac	4523465	in_stock	2000
+82d25e8f-067d-756b-a3ad-a2ab528987a4	4523465	limited_availability	2
+51531784-54e4-108b-ff10-4953be730574	4523465	in_stock	4
+c9b4986a-0f18-d9e1-0012-5ee3648f42aa	4523465	in_stock	28
+9c0e08f9-ea38-a7c6-b726-ba63668fb302	4523465	in_stock	43
+6077a62d-aace-4c35-ab73-1070551f9a0d	4523465	limited_availability	1
+b8d5029d-5c8e-02b6-8a8a-ec69f70bf6a1	4523465	in_stock	28
+36d10aa6-2eb5-48bb-8e5b-8b1807a9dfe9	4523465	limited_availability	1
+c456a366-b993-e68e-9f39-0eca847690c4	4523465	limited_availability	2
+a67bc800-e18e-ef72-4dc8-2cc7b9832cdb	4523465	in_stock	12
+828d4687-0539-0121-3243-62feaad958c8	4523465	in_stock	11
+8f498c24-95d2-276e-e65f-283b53f00279	4523465	in_stock	58
+6f58b717-b448-fa21-b48a-7c321c2b298e	4523465	limited_availability	1
+23266476-6dc1-b70d-5f9c-e6814d2fba8e	4523465	in_stock	352
+d8725f0f-3e28-c253-fad4-f745bc0dcc25	4523465	in_stock	6
+1d68fc04-a942-ba5a-b5b5-182275a1c829	4523465	limited_availability	2
+caf79ec0-3b8a-5ec8-2a51-fb44935ea927	4523465	in_stock	14
 2d246141-3c8f-ca49-0511-00e0d0eaee8b	4523465	in_stock	14
 691cb28d-5144-a351-e6c3-294323c42abb	4523465	in_stock	22
 06e777c9-237a-32f6-ee63-7ddd1755e7b2	4523465	in_stock	5
@@ -7,9 +26,9 @@ id	store_code	availability	quantity
 55da3ff1-c2e2-53cd-8c3d-e59ebf306ada	4523465	in_stock	3
 e03490a2-0a66-41ee-9d54-273bc401a43b	4523465	limited_availability	1
 c3f9dd0b-4ea8-4b29-b9c2-a6b997e6e6da	4523465	limited_availability	1
-0fd9530c-bd66-49d3-b549-26facad50a2b	4523465	in_stock	20
+0fd9530c-bd66-49d3-b549-26facad50a2b	4523465	in_stock	34
 6dfa47ed-78f8-4207-884c-b81e728903b8	4523465	limited_availability	1
-efcc5786-88c8-0e67-22f6-5c10e0aa2da0	4523465	in_stock	6
+efcc5786-88c8-0e67-22f6-5c10e0aa2da0	4523465	in_stock	7
 6047bf25-85d2-2cf9-829e-03518394a06e	4523465	in_stock	7
 1973bdc4-1a0c-4175-b435-871ebc6891ae	4523465	limited_availability	1
 0bcb606d-93ba-49ed-abc6-17a98a3a027f	4523465	limited_availability	1
@@ -66,6 +85,7 @@ f41f3245-06ef-2438-58dd-b64f66297b04	4523465	limited_availability	1
 12ff21a2-1084-30a6-c5e1-f9019fedd04c	4523465	limited_availability	1
 0643a950-2f07-3424-2a04-7bbdccad2266	4523465	limited_availability	1
 6c093e45-c558-3a40-adcf-104a85158366	4523465	limited_availability	1
+a8ae67e0-c7a8-434d-b08f-66502adedbbe	4523465	limited_availability	1
 f644e2b8-3be8-43e6-b53f-83a08d701fac	4523465	in_stock	4
 cf28d5bc-14a7-4971-9349-b5ab796e3ac8	4523465	limited_availability	1
 7b31bb4c-9cc8-4a35-84ae-82a74c1e0e0d	4523465	limited_availability	1
@@ -226,7 +246,6 @@ b2ab7507-6b55-4bd9-9e16-c159c9955d19	4523465	limited_availability	1
 e236f5ee-676f-4930-9032-1270315a8aa5	4523465	limited_availability	1
 a6f4a8bb-48dc-4684-b5de-b6b56da55e70	4523465	limited_availability	1
 eac5f6ea-df15-45c0-ab42-05fca7ed74ee	4523465	limited_availability	1
-011ae3ce-312b-4307-a181-436945934088	4523465	limited_availability	1
 4f96f67d-a82e-4ea9-9485-178b31b605b6	4523465	limited_availability	1
 dc635e01-2290-4a2a-a95f-bf741001036a	4523465	in_stock	3
 bd3e6256-49fe-45a8-86cd-82083e37d442	4523465	in_stock	7
@@ -423,3 +442,4 @@ b738102f-615f-c2fe-fe0f-812ab219bd1f	4523465	in_stock
 c3d8c9df-1244-cfab-4e88-2c13232d950c	4523465	in_stock	105
 62be00d8-0586-2ca8-7c4d-c620442f094f	4523465	in_stock	60
 0aa879ad-233f-2372-8940-68ceead96907	4523465	in_stock	5
+de8864c2-e10f-37c0-53a0-28ad778262c1	4523465	in_stock	
