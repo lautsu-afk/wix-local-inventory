@@ -1,4 +1,5 @@
 id	store_code	availability	quantity
+b5f4c0a1-4ae1-f184-a67c-c442559beef7	4523465	limited_availability	1
 5753feb5-58e8-a28e-5725-429416e0c610	4523465	limited_availability	1
 0e35da95-6999-07ee-0ef4-fbbb3ef52c1a	4523465	limited_availability	1
 dd8dd7fc-ed96-81b9-a31e-4940102245ac	4523465	in_stock	2000
@@ -157,7 +158,6 @@ d2d0a27e-a614-a1ba-0211-fa795a28b1b6	4523465	in_stock	45
 12218c05-21b5-c76b-2836-614bc5f5662d	4523465	limited_availability	1
 cadb2ca6-6b80-b572-f473-4f269a13adc9	4523465	limited_availability	1
 ec6ab370-d3b7-a2d0-b8ec-f22de556a11d	4523465	limited_availability	1
-f4289230-fd51-d069-a21d-afde12bc8963	4523465	limited_availability	1
 9094500d-3d08-60fe-7520-48a172cc6adb	4523465	in_stock	6
 c164eeb2-e6d0-fe40-0b41-3e1007d41be4	4523465	in_stock	3
 93c1b1e3-0870-9cd1-bb24-d4a3dd279f6c	4523465	in_stock	7
@@ -261,7 +261,7 @@ ab049144-0f9f-4491-b55a-ec1ac29e0129	4523465	in_stock	3
 88fde133-591f-4dfb-b195-7a5fabf2a2b3	4523465	limited_availability	2
 6178930c-e199-24aa-b11a-29e4fe91312e	4523465	in_stock	13
 ff303c93-79f6-f7fa-55c2-99ae1573397b	4523465	in_stock	8
-2dd1ad71-fd3d-16ed-5c95-af72a89b2857	4523465	in_stock	6
+2dd1ad71-fd3d-16ed-5c95-af72a89b2857	4523465	in_stock	5
 5d784969-3842-4525-a48c-2ba76032f97e	4523465	in_stock	14
 d5aa33dc-4246-43eb-af62-184ca0a29a47	4523465	limited_availability	1
 6c62e73c-939e-4b7b-b86e-fd0b3f6522a3	4523465	limited_availability	1
