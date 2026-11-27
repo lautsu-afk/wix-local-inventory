@@ -71,7 +71,6 @@ de27e353-73d3-8b52-11cd-ccba846c6bce_1	4523465	in_stock	4
 9728a555-0f92-9918-d207-e30042740d10_1	4523465	limited_availability	2
 e586002b-05fb-ebf9-efef-d4e99bf308ab	4523465	limited_availability	1
 2484474a-bef9-d43d-36cd-fed9361172b6	4523465	limited_availability	1
-7310ac86-75a4-f063-309a-7b980ebc567f	4523465	limited_availability	2
 af5f9aea-d99d-01d3-4a65-85211f26d741	4523465	limited_availability	1
 7fb37450-bc34-c488-98ac-368e6622c261	4523465	limited_availability	2
 9b060ea2-c7a4-2c1b-d63e-80b63ccb9a5e	4523465	limited_availability	1
@@ -199,7 +198,7 @@ fa36a673-2569-d461-005e-7a285a8ed812_4	4523465	limited_availability	1
 3bbfb0b6-ae45-4af4-b32a-cb5ef176b36c	4523465	limited_availability	1
 b2546548-6765-48cb-bbf8-ffdff8d840dd	4523465	limited_availability	1
 dc67b821-2f2b-4d1f-b3de-ea38646d0575	4523465	limited_availability	1
-f182c96c-d96c-4734-97d0-542012848a23	4523465	limited_availability	1
+f182c96c-d96c-4734-97d0-542012848a23	4523465	out_of_stock	0
 0da2f707-c0bb-4a7f-a577-cdb0f3379d4b	4523465	limited_availability	1
 77afa4a9-c37f-4266-9181-080a4a9d801d	4523465	limited_availability	2
 a20b529a-24b7-4836-90cc-aace2945095a	4523465	limited_availability	1
